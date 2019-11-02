@@ -79,7 +79,7 @@ export default withUser(UserPage);
 >
 > useMemo  useCallback   防止不必要的重渲染
 >
-> useEffect                            处理副作用 
+> useEffect                            处理副作用 ，可以替换部分生命周期
 >
 > useReducer                        跟 redux 中的数据流的概念非常接近 
 >

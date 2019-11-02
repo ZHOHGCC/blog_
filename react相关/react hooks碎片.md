@@ -10,7 +10,7 @@
 
 渲染属性指的是使用一个值为函数的prop来传递需要动态渲染的nodes或组件。如下面的代码可以看到我们的`DataProvider`组件包含了所有跟状态相关的代码，而`Cat`组件则可以是一个单纯的展示型组件，这样一来`DataProvider`就可以单独复用了。
 
-```
+```javascript
 import Cat from 'components/cat'
 class DataProvider extends React.Component {
   constructor(props) {
@@ -48,7 +48,7 @@ class DataProvider extends React.Component {
 
 高阶组件这个概念就更好理解了，说白了就是一个函数接受一个组件作为参数，经过一系列加工后，最后返回一个新的组件。看下面的代码示例，`withUser`函数就是一个高阶组件，它返回了一个新的组件，这个组件具有了它提供的获取用户信息的功能。
 
-```
+```javascript
 const withUser = WrappedComponent => {
   const user = sessionStorage.getItem("user");
   return props => <WrappedComponent user={user} {...props} />;
@@ -81,19 +81,17 @@ export default withUser(UserPage);
 >
 > useEffect                            处理副作用 ，可以替换部分生命周期
 >
-> useReducer                        跟 redux 中的数据流的概念非常接近 
+> useReducer                       跟 redux 中的数据流的概念非常接近 
 >
 > useRef                                返回一个可变的 ref 对象 
 >
 > useContext                        监听 provider 更新变化 
 
-具体的用法...自己实践
+具体的用法.....就太多了
 
 ### 先对比函数式和类的区别吧
 
-<img src="C:\Users\QWQ\AppData\Roaming\Typora\typora-user-images\image-20191030154705754.png" alt="image-20191030154705754" style="zoom: 80%;" />
-
-
+![QN@9JAZ$0S(L2L45)L9L8CU](C:\Users\QWQ\Desktop\blog\blog_\react相关\QN@9JAZ$0S(L2L45)L9L8CU.png)
 
 Hook 的使用范围：函数式的 React 组件中、自定义的 Hook 函数里；
 

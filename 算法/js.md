@@ -432,7 +432,21 @@ JSON.stringify()是目前前端开发过程中最常用的深拷贝方式，原�
 
 # 防抖debounce，节流 throttle
 
-**所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。**
+```html
+<div id="content"
+        style="height:150px;line-height:150px;text-align:center; color: #fff;background-color:#ccc;font-size:80px;">
+</div>
+
+let num = 1;
+    let content = document.getElementById('content');
+
+    function count() {
+        content.innerHTML = num++;
+    };
+    content.onmousemove = throttle(count, 1000);
+```
+
+**所谓防抖，就是指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间**。
 
 ```javascript
    function debounce(fn, time) {
@@ -545,3 +559,260 @@ node1.parentNode.removeChild(node1);
 ```
     元素节点.removeAttribute(属性名);
 ```
+
+
+
+
+
+#  EventLoop事件循环
+
+首先就是执行时会有一个栈 然后有一个事件队列
+
+通常我们把消息队列中的任务称为**宏任务**，每个宏任务中都包含了一个**微任务队列**；在执行宏任务的过程中，如果 DOM 有变化，那么就会将该变化添加到微任务列表中，这样就不会影响到宏任务的继续执行，因此也就解决了执行效率的问题。
+
+完毕后，会看看微任务空间中有没有微任务，有就把微任务空间中的微任务全部执行，然后去队列中取我们的事件执行，执行时若有微任务继续放到微任务队列，当此事件执行完毕，还会把微任务空间中的微任务全部执行完毕，然后再去取队列中的异步任务。。。。反复循环
+
+# 宏任务与微任务
+
+macrotask（又称之为宏任务），可以理解是每次执行栈执行的代码就是一个宏任务（包括每次从事件队列中获取一个事件回调并放到执行栈中执行）
+
+主代码块，**setTimeout，setInterval等**（可以看到，**事件队列中的每一个事件**都是一个macrotask）
+
+- 每一个task会从头到尾将这个任务执行完毕，不会执行其它
+- 浏览器为了能够使得JS内部task与DOM任务能够有序的执行，会在一个task执行结束后，在下一个 task 执行开始前，对页面进行重新渲染 （`task->渲染->task->...`）
+
+microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务
+
+**Promise，process.nextTick**等
+
+- 也就是说，在当前task任务后，下一个task之前，在渲染之前
+- 所以它的响应速度相比setTimeout（setTimeout是task）会更快，因为无需等渲染
+- 也就是说，在某一个macrotask执行完后，就会将在它执行期间产生的所有microtask都执行完毕（在渲染前）
+
+
+
+# js设计模式
+
+## 单例模式
+
+单例模式的定义：保证一个类仅有一个实例，并提供一个访问它的全局访问点。实现的方法为先判断实例存在与否，如果存在则直接返回，如果不存在就创建了再返回，这就确保了一个类只有一个实例对象。
+
+**缺点**：由于单例模式提供的是一种单点访问，所以它有可能导致模块间的强耦合 
+
+**优点**：实例化一次。简化了代码的调试和维护
+
+ 适用场景：一个单一对象。比如：弹窗，无论点击多少次，弹窗只应该被创建一次。
+
+```javascript
+    class CreateUser {
+        constructor(name) {
+            this.name = name;
+            this.getName();
+        }
+        getName() {
+            return this.name;
+        }
+    }
+    // 代理实现单例模式
+    var ProxyMode = (function () {
+        var instance = null;
+        return function (name) {
+            if (!instance) {
+                instance = new CreateUser(name);
+            }
+            if (name) instance.name = name
+            return instance
+        }
+    })();
+    // 测试单体模式的实例
+    var a = new ProxyMode("aaa");
+    var b = new ProxyMode("bbb");
+    // 因为单体模式是只实例化一次，所以下面的实例是相等的
+    console.log(a === b); //true
+```
+
+## 代理模式
+
+代理模式的定义：为一个对象提供一个代用品或占位符，以便控制对它的访问。
+
+#### 优点
+
+- 代理模式能将代理对象与被调用对象分离，降低了系统的耦合度。代理模式在客户端和目标对象之间起到一个中介作用，这样可以起到保护目标对象的作用
+- 代理对象可以扩展目标对象的功能；通过修改代理对象就可以了，符合开闭原则；
+
+#### 缺点
+
+处理请求速度可能有差别，非直接访问存在开销
+
+```html
+<body>
+    <ul id="ul">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
+</body>
+<script>
+    let ul = document.querySelector('#ul');
+    ul.addEventListener('click', event => {
+        console.log(event.target);
+    });
+</script>
+```
+
+## 观察者模式
+
+定义了一种一对多的关系，让多个观察者对象同时监听某一个主题对象，这个主题对象的状态发生变化时就会通知所有的观察者对象，使它们能够自动更新自己
+
+#### 优点
+
+- 支持简单的广播通信，自动通知所有已经订阅过的对象
+- 目标对象与观察者之间的抽象耦合关系能单独扩展以及重用
+- 增加了灵活性
+- 观察者模式所做的工作就是在解耦，让耦合的双方都依赖于抽象，而不是依赖于具体。从而使得各自的变化都不会影响到另一边的变化。
+
+#### 缺点
+
+过度使用会导致对象与对象之间的联系弱化，会导致程序难以跟踪维护和理解
+
+```javascript
+// 发布订阅模式
+class EventEmitter {
+  constructor() {
+    // 事件对象，存放订阅的名字和事件  如:  { click: [ handle1, handle2 ]  }
+    this.events = {}
+  }
+  // 订阅事件的方法
+  on(eventName, callback) {
+    if (!this.events[eventName]) {
+      // 一个名字可以订阅多个事件函数
+      this.events[eventName] = [callback]
+    } else {
+      // 存在则push到指定数组的尾部保存
+      this.events[eventName].push(callback)
+    }
+  }
+  // 触发事件的方法
+  emit(eventName, ...rest) {
+    // 遍历执行所有订阅的事件
+    this.events[eventName] &&
+      this.events[eventName].forEach(f => f.apply(this, rest))
+  }
+  // 移除订阅事件
+  remove(eventName, callback) {
+    if (this.events[eventName]) {
+      this.events[eventName] = this.events[eventName].filter(f => f != callback)
+    }
+  }
+  // 只执行一次订阅的事件，然后移除
+  once(eventName, callback) {
+    // 绑定的时fn, 执行的时候会触发fn函数
+    const fn = () => {
+      callback() // fn函数中调用原有的callback
+      this.remove(eventName, fn) // 删除fn, 再次执行的时候之后执行一次
+    }
+    this.on(eventName, fn)
+  }
+}
+
+```
+
+
+
+# Location 对象
+
+
+
+当然，当我们更改URL时，可能会出现这样一种情况：我们只更改了URL的片段标识符 (跟在＃符号后面的URL部分，包括＃符号)，这种情况下将触发 hashchange 事件，使用方法如下：
+
+```
+window.addEventListener("hashchange", funcRef, false);
+
+// 或者
+
+window.onhashchange = funcRef;
+```
+
+其中，提到的 hash 属性可以通过 `location.hash` 获得。从这里开始，我们引出 Location 对象。Location 对象包含有关当前 URL 的信息。针对一个示例 `http://b.a.com:88/index.php?name=kang&when=2011#first` 我们整理一下各个属性与其含义的分别所指内容是啥。
+
+| 属性     | 描述                                          | 值                                                      |
+| -------- | --------------------------------------------- | ------------------------------------------------------- |
+| hash     | 设置或返回从井号 (#) 开始的 URL（锚）。       | "#first"                                                |
+| host     | 设置或返回主机名和当前 URL 的端口号。         | "b.a.com:88"                                            |
+| hostname | 设置或返回当前 URL 的主机名。                 | "b.a.com"                                               |
+| href     | 设置或返回完整的 URL。                        | "http://b.a.com:88/index.php?name=kang&when=2011#first" |
+| pathname | 设置或返回当前 URL 的路径部分。               | "/index.php"                                            |
+| port     | 设置或返回当前 URL 的端口号。                 | 88                                                      |
+| protocol | 设置或返回当前 URL 的协议。                   | "http:"                                                 |
+| search   | 设置或返回从问号 (?) 开始的 URL（查询部分）。 | "?name=kang&when=2011"                                  |
+
+window.location和document.location互相等价的，可以交换使用。且 location 的8个属性都是可读写的，但是只有href与hash的写才有意义。例如改变location.href会重新定位到一个URL，而修改location.hash会跳到当前页面中的anchor名字的标记(如果有)，而且页面不会被重新加载。
+
+通过 location 我们可以作如下几种方法的操作：
+
+- **assign()** 方法：加载新的文档；
+- **reload()** 方法：重新加载当前文档；
+- **replace()** 方法：用新的文档替换当前文档。
+
+导航到一个新页面的方法：
+
+```
+window.location.assign("http://www.mozilla.org"); // or
+window.location = "http://www.mozilla.org";
+```
+
+replace() 方法不会在 History 对象中生成一个新的记录。当使用该方法时，新的 URL 将覆盖 History 对象中的当前记录。用法为：
+
+```
+window.location.replace('http://example.com/'); 
+```
+
+通过 location 的属性与方法，我们可以做很多事情，详情可以查看 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/location)。
+
+# 前端路由
+
+## **Hash 路由**
+
+url 上的 hash 以 # 开头，原本是为了作为锚点，方便用户在文章导航到相应的位置。因为 hash 值的改变不会引起页面的刷新，聪明的程序员就想到用 hash 值来做单页面应用的路由，并且当 url 的 hash 发生变化的时候，可以触发相应 hashchange 回调函数。
+
+所以我们可以写一个 Router 对象，代码如下：
+
+```javascript
+class Router {
+  constructor() {
+    this.routes = {};
+    this.currentUrl = '';
+  }
+  route(path, callback) {
+    this.routes[path] = callback || function() {};
+  }
+  updateView() {
+    this.currentUrl = location.hash.slice(1) || '/';
+    this.routes[this.currentUrl] && this.routes[this.currentUrl]();
+  }
+  init() {
+    window.addEventListener('load', this.updateView.bind(this), false);
+    window.addEventListener('hashchange', this.updateView.bind(this), false);
+  }
+}
+```
+
+## **History 路由**
+
+History 作为一个全局变量（即 window.history），不继承任何属性，在 HTML4 时代就已经存在，通过这个接口，我们可以操纵浏览器中曾经访问过的会话历史记录，但当时我们能使用的属性与方法只有这么几个：
+
+- **History.length** 属性: 返回一个整数，该整数表示会话历史中元素的数目，包括当前加载的页。例如，在一个新的选项卡加载的一个页面中，这个属性返回1。
+- **History.back()** 方法：前往上一页, 用户可点击浏览器左上角的返回按钮模拟此方法。等价于 history.go(-1).
+- **History.forward()** 方法：在浏览器历史记录里前往下一页，用户可点击浏览器左上角的前进按钮模拟此方法。等价于 history.go(1).
+- **History.go()** 方法：通过当前页面的相对位置从浏览器历史记录( 会话记录 )加载页面。
+
+从 HTML5 开始，增加了两个新的方法：
+
+- History.pushState(state, title [, url])** 方法：往历史堆栈的顶部添加一个状态。
+- **History.replaceState(state, title [, url])**：更改当前页面的历史记录值。参数同上。这种更改并不会去访问该URL。
+- **popstate**事件：当活动历史记录条目更改时，将触发popstate事件
+
+# 函数柯里化
+
+柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术。
+

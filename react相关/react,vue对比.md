@@ -9,10 +9,9 @@
 而Redux则是一个纯粹的状态管理系统，React利用React-Redux将它与React框架结合起来。  
 
 #### 对比：
-因为VUEX可以以一敌多，接下来将对以下三方面进行分析
+因为VUEX可以以一敌多，接下来将对以下两方面进行分析
 - Redux vs VUEX
 - React-Redux vs VUEX
-- DVA vs VUEX
 
 #### I
 

@@ -5,10 +5,12 @@
 ```javascript
 function observe(data) {
         let observer = {}
+        let dep = new Dep()
         for (let key in data) {
-            let dep = new Dep()
+            
             Object.defineProperty(observer, key, {
                 set(newValue) {
+                    //一旦更改则触发所有watcher
                     dep.notify(newValue)
                     console.log('this is set')
                     data[key] = newValue
@@ -16,6 +18,7 @@ function observe(data) {
                 get() {
                     console.log('this is get')
                     console.log(Dep.target)
+                    
                     if (Dep.target) {
                         dep.addSub(Dep.target)
                     }
@@ -53,6 +56,7 @@ function observe(data) {
         let cb = (newVaule) => {
             obj[key] = newVaule
         }
+        //想了想 还是设置静态方便一些
         Dep.target = new Watcher(cb)
 
         return obj

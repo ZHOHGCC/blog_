@@ -97,9 +97,29 @@ function Fn() {
 Fn.prototype = new Array;
 var f = new Fn;
 console.log(f.constructor); // Array
+
+
 ```
 
-# `toString`和`String`的区别
+# 
+
+执行类型转换的规则如下：
+
+- 如果一个运算数是 Boolean 值，在检查相等性之前，把它转换成数字值。false 转换成 0，true 为 1。
+- 如果一个运算数是字符串，另一个是数字，在检查相等性之前，要尝试把字符串转换成数字。
+- 如果一个运算数是对象，另一个是字符串，在检查相等性之前，要尝试把对象转换成字符串。
+- 如果一个运算数是对象，另一个是数字，在检查相等性之前，要尝试把对象转换成数字。
+
+在比较时，该运算符还遵守下列规则：
+
+- 值 null 和 undefined 相等。
+- 在检查相等性时，不能把 null 和 undefined 转换成其他值。
+- 如果某个运算数是 NaN，等号将返回 false，非等号将返回 true。
+- 如果两个运算数都是对象，那么比较的是它们的引用值。如果两个运算数指向同一对象，那么等号返回 true，否则两个运算数不等。
+
+
+
+# toString`和`String`的区别
 
 `toString()`可以将数据都转为字符串，但是`null`和`undefined`不可以转换。
 
@@ -202,7 +222,7 @@ function myNew(func){
     }
 ```
 
-
+**Object.create()**方法创建一个新对象，使用现有的对象来提供新创建的对象的__proto__。
 
 #  如何正确判断this？
 
@@ -253,7 +273,14 @@ function myNew(func){
 
 
 
+
+
 **作用域链**
+
+通俗地讲，当声明一个函数时，局部作用域一级一级向上包起来，就是作用域链。
+
+作用域链是一条变量对象的链,它和执行上下文有关,用于在处理标识符的时候进行变量查询.
+函数上下文的作用域链在[函数调用](https://www.baidu.com/s?wd=函数调用&tn=SE_PcZhidaonwhc_ngpagmjz&rsv_dl=gh_pc_zhidao)的时候创建出
 
 其实在每个执行上下文的变量环境中，都包含了一个外部引用，用来指向外部的执行上下文，我们把这个外部引用称为 outer。
 
@@ -501,6 +528,7 @@ let num = 1;
 
 ```
 父节点.insertBefore(新的子节点,作为参考的子节点);
+ a.insertBefore(d, a.firstElementChild)
 ```
 
 解释：
@@ -570,6 +598,8 @@ node1.parentNode.removeChild(node1);
 
 通常我们把消息队列中的任务称为**宏任务**，每个宏任务中都包含了一个**微任务队列**；在执行宏任务的过程中，如果 DOM 有变化，那么就会将该变化添加到微任务列表中，这样就不会影响到宏任务的继续执行，因此也就解决了执行效率的问题。
 
+
+
 完毕后，会看看微任务空间中有没有微任务，有就把微任务空间中的微任务全部执行，然后去队列中取我们的事件执行，执行时若有微任务继续放到微任务队列，当此事件执行完毕，还会把微任务空间中的微任务全部执行完毕，然后再去取队列中的异步任务。。。。反复循环
 
 # 宏任务与微任务
@@ -579,7 +609,7 @@ macrotask（又称之为宏任务），可以理解是每次执行栈执行的�
 主代码块，**setTimeout，setInterval等**（可以看到，**事件队列中的每一个事件**都是一个macrotask）
 
 - 每一个task会从头到尾将这个任务执行完毕，不会执行其它
-- 浏览器为了能够使得JS内部task与DOM任务能够有序的执行，会在一个task执行结束后，在下一个 task 执行开始前，对页面进行重新渲染 （`task->渲染->task->...`）
+- 浏览器为了能够使得JS内部task与DOM任务能够有序的执行，会在一个task执行结束后，在下一个 task 执行开始前，对页面进行重新渲染 （`task(当前的宏任务，微任务队列里面的所有微任务)->渲染->task->...`）
 
 microtask（又称为微任务），可以理解是在当前 task 执行结束后立即执行的任务
 
@@ -660,9 +690,16 @@ microtask（又称为微任务），可以理解是在当前 task 执行结束�
 </script>
 ```
 
-## 观察者模式
+## 发布订阅者模式
 
 定义了一种一对多的关系，让多个观察者对象同时监听某一个主题对象，这个主题对象的状态发生变化时就会通知所有的观察者对象，使它们能够自动更新自己
+
+1.观察者模式维护的是一个单一事件对应多个依赖这个事件的对象之间关系 
+观察者是: event->[obj1,obj2obj3,....]
+2.订阅发布模式维护的是多个主题(事件) 以及依赖于各个主题(事件)的对象之间的关系
+订阅发布是:{
+event1->[obj1,obj2....],
+event2->[obj1,obj2.....],....}
 
 #### 优点
 
@@ -769,7 +806,7 @@ window.location.replace('http://example.com/');
 
 通过 location 的属性与方法，我们可以做很多事情，详情可以查看 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/location)。
 
-# 前端路由
+# Location 对象
 
 ## **Hash 路由**
 
@@ -812,7 +849,368 @@ History 作为一个全局变量（即 window.history），不继承任何属性
 - **History.replaceState(state, title [, url])**：更改当前页面的历史记录值。参数同上。这种更改并不会去访问该URL。
 - **popstate**事件：当活动历史记录条目更改时，将触发popstate事件
 
-# 函数柯里化
+# HTML attribute与DOM property之间的区别
 
-柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术。
+**attribute** 是我们在 **html** 代码中经常看到的键值对, 例如:
+
+```
+<input id="the-input" type="text" value="Name:" />
+```
+
+上面代码中的 input 节点有三个 attribute:
+
+- id : the-input
+- type : text
+- value : Name:
+
+**property**属性属于DOM对象，DOM实质就是javascript中的对象。我们可以跟在js中操作普通对象一样获取、设置DOM对象的属性，并且property属性可以是任意类型。
+
+```
+HTMLInputElement.id === 'the-input'
+HTMLInputElement.type === 'text'
+```
+
+- 非自定义的property（attribute）改变的时候，其对应的attribute（property）在多数情况下也会改变。（自定义的属性 property无法获取）
+- 当对应的property改变的时候，attribute特性value的值一直未默认值，并不会随之改变。
+- 在javascript中我们推荐使用**property属性**因为这个属性相对**attribute**更快，更简便。尤其是有些类型本该是布尔类型的attribute特性。比如："checked", "disabled", "selected"。浏览器会自动将这些值转变成布尔值传给property属性。
+
+
+
+# addEventListener和onClick()的区别
+
+### 1.DOM 0级事件
+
+在了解DOM0级事件之前，我们有必要先了解下**HTML事件处理程序**，也是最早的这一种的事件处理方式，代码如下：
+
+```html
+<button type="button" onclick="fn()" id="btn">点我试试</button>
+
+<script>
+    function fn() {
+        alert('Hello World');
+    }
+</script>
+```
+
+直接在HTML代码当中定义了一个onclick的属性触发fn方法，这样的事件处理程序最大的缺点就是**HTML与JS强耦合**，当我们一旦需要修改函数名就得修改两个地方。当然其优点就是**不需要操作DOM来完成事件的绑定**。
+
+那我们如何实现**HTML与JS低耦合**？这样就有DOM0级处理事件的出现解决这个问题。
+
+**DOM0级事件就是将一个函数赋值给一个事件处理属性**，比如：
+
+```html
+<button id="btn" type="button"></button>
+
+<script>
+    var btn = document.getElementById('btn');
+    
+    btn.onclick = function() {
+        alert('Hello World');
+    }
+    
+    // btn.onclick = null; 解绑事件 
+</script>
+复制代码
+```
+
+上面的代码我们给button定义了一个id，然后通过JS获取到了这个id的按钮，并将一个函数赋值给了一个事件处理属性onclick，这样的方法便是DOM0级处理事件的体现。我们可以通过给事件处理属性赋值null来**解绑事件**。DOM 0级的事件处理的步骤：**先找到DOM节点，然后把处理函数赋值给该节点对象的事件属性。**
+
+DOM0级事件处理程序的缺点在于**一个处理程序「事件」无法同时绑定多个处理函数**
+
+### 2.DOM2级事件
+
+DOM2级事件在DOM0级事件的基础上弥补了一个处理程序无法同时绑定多个处理函数的缺点，允许给一个处理程序添加多个处理函数。也就是说，**使用DOM2事件可以随意添加多个处理函数**，移除DOM2事件要用removeEventListener。代码如下：
+
+```html
+<button type="button" id="btn">点我试试</button>
+
+<script>
+    var btn = document.getElementById('btn');
+
+    function fn() {
+        alert('Hello World');
+    }
+    btn.addEventListener('click', fn, false);
+    // 解绑事件，代码如下
+    // btn.removeEventListener('click', fn, false);  
+</script>
+```
+
+DOM2级事件定义了addEventListener和removeEventListener两个方法，分别用来绑定和解绑事件
+
+IE8级以下版本不支持addEventListener和removeEventListener，需要用attachEvent和detachEvent来实现
+
+
+### 3.DOM3级事件
+
+DOM3级事件在DOM2级事件的基础上添加了更多的事件类型，全部类型如下：
+
+1. UI事件，当用户与页面上的元素交互时触发，如：load、scroll
+2. 焦点事件，当元素获得或失去焦点时触发，如：blur、focus
+3. 鼠标事件，当用户通过鼠标在页面执行操作时触发如：dbclick、mouseup
+4. 滚轮事件，当使用鼠标滚轮或类似设备时触发，如：mousewheel
+5. 文本事件，当在文档中输入文本时触发，如：textInput
+6. 键盘事件，当用户通过键盘在页面上执行操作时触发，如：keydown、keypress
+7. 合成事件，当为IME（输入法编辑器）输入字符时触发，如：compositionstart
+8. 变动事件，当底层DOM结构发生变化时触发，如：DOMsubtreeModified
+
+同时DOM3级事件也**允许使用者自定义一些事件**。
+
+## 事件代理(事件委托)
+
+由于事件会在冒泡阶段向上传播到父节点，因此可以把子节点的监听函数定义在父节点上，由父节点的监听函数统一处理多个子元素的事件。这种方法叫做事件的代理（delegation）。
+
+- 函数是对象，会占用内存，内存中的对象越多，浏览器性能越差
+- 注册的事件一般都会指定DOM元素，事件越多，导致DOM元素访问次数越多，会延迟页面交互就绪时间。
+- 删除子元素的时候不用考虑删除绑定事件
+
+## Event对象常见的方法和属性
+
+- `event.target`指向**引起触发事件的元素**，而`event.currentTarget`则是**事件绑定的元素**。
+- **event.stopPropagation() 方法阻止事件冒泡到父元素，阻止任何父事件处理程序被执行**。
+- **stopImmediatePropagation 既能阻止事件向父元素冒泡，也能阻止元素同事件类型的其它监听器被触发。而 stopPropagation 只能实现前者的效果**。
+- event. preventDefault()**如果调用这个方法，默认事件行为将不再触发**。
+
+
+
+# Promise
+
+### promise 标准
+
+- 三种状态：pending fulfilled reject
+- 初始状态：pengding
+- pending变为fulfilled 或者 变为 reject
+- 状态变化不可逆
+
+- promise必须实现then方法
+- then()接受俩函数作为参数
+- then()返回的是pormise实例
+
+ 
+
+```javascript
+实现一个简单的promise
+//Promise 的三种状态  (满足要求 -> Promise的状态)
+const PENDING = 'pending';
+const FULFILLED = 'fulfilled';
+const REJECTED = 'rejected';
+
+class AjPromise {
+  constructor(fn) {
+    //当前状态
+    this.state = PENDING;
+    //终值
+    this.value = null;
+    //拒因
+    this.reason = null;
+    //成功态回调队列
+    this.onFulfilledCallbacks = [];
+    //拒绝态回调队列
+    this.onRejectedCallbacks = [];
+
+    //成功态回调
+    const resolve = value => {
+      // 使用macro-task机制(setTimeout),确保onFulfilled异步执行,且在 then 方法被调用的那一轮事件循环之后的新执行栈中执行。
+      setTimeout(() => {
+        if (this.state === PENDING) {
+          // pending(等待态)迁移至 fulfilled(执行态),保证调用次数不超过一次。
+          this.state = FULFILLED;
+          // 终值
+          this.value = value;
+          this.onFulfilledCallbacks.map(cb => {
+            this.value = cb(this.value);
+          });
+        }
+      });
+    };
+    //拒绝态回调
+    const reject = reason => {
+      // 使用macro-task机制(setTimeout),确保onRejected异步执行,且在 then 方法被调用的那一轮事件循环之后的新执行栈中执行。 (满足要求 -> 调用时机)
+      setTimeout(() => {
+        if (this.state === PENDING) {
+          // pending(等待态)迁移至 fulfilled(拒绝态),保证调用次数不超过一次。
+          this.state = REJECTED;
+          //拒因
+          this.reason = reason;
+          this.onRejectedCallbacks.map(cb => {
+            this.reason = cb(this.reason);
+          });
+        }
+      });
+    };
+    try {
+      //执行promise
+      fn(resolve, reject);
+    } catch (e) {
+      reject(e);
+    }
+  }
+  then(onFulfilled, onRejected) {
+    typeof onFulfilled === 'function' && this.onFulfilledCallbacks.push(onFulfilled);
+    typeof onRejected === 'function' && this.onRejectedCallbacks.push(onRejected);
+    // 返回this支持then 方法可以被同一个 promise 调用多次
+    return this;
+  }
+}
+
+```
+
+### promise.all
+
+Promise.all([p1,p2,p3])中，all方法的参数条件
+
+- 参数为一个[可迭代](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol)对象，如 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Array) 或 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/String)。
+- 传入的值必须按顺序输出
+- 一旦又一个reject则状态立马变为reject，并将错误原因抛出
+
+**实现思路：**
+
+1. 生成一个新的Promise。
+2. 遍历传入的promise数组，依次调用每一个promise的then方法注册回调。
+3. 在then 回调中把promise返回值push到一个结果数组中，检测结果数组长度与promise数组长度相等时表示所有promise都已经resolve了，再执行总的resolve。
+
+
+
+```
+
+```
+
+### promise.race
+
+1. 参数为一个[可迭代](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol)对象，如 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Array) 或 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/String)。
+2. 一个**待定的** [`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 只要给定的迭代中的一个promise解决或拒绝，就采用第一个promise的值作为它的值，从而**异步**地解析或拒绝
+
+```javascript
+Promise.race = function (promises) {
+    return new Promise((resolve, reject) => {
+        for (let i = 0; i < promises.length; i++) {
+            promises[i].then(resolve, reject);
+        }
+    })
+}
+
+```
+
+### catch方法
+
+```javascript
+//catch()其实就是简易版的then()方法，它没有成功的回调，只有失败的回调。
+then(onFulfilled, onRejected){
+    ...
+}
+catch(onRejected){ //在此处添加原型上的方法catch
+    return this.then(null,onRejected);
+}
+```
+
+
+
+# 文件下载
+
+```javascript
+ //  -----------------------------------------------------单例模式创造a标签
+let download = (function Download() {
+            let a = null
+            return function (href) {
+                if (!a) {
+                    a = document.createElement('a')
+                }
+                if (href) {
+                    a.href = href
+                }
+                return a
+            }
+        })()
+
+        let myFile = document.getElementById('myFile')
+        myFile.addEventListener('change', () => {
+
+            let blob = new Blob([myFile.files[0]])
+            console.log(blob)
+            let url = window.URL.createObjectURL(blob)
+            download(url)
+        })
+        let btn = document.getElementById('btn')
+        btn.addEventListener('click', () => {
+            let a = download()
+            a.setAttribute('download', 'xxx.docx')
+            a.click()
+            window.URL.revokeObjectURL(a.href)
+        })
+```
+
+# react,vue 中key的作用
+
+key的作用就是更新组件时**判断两个节点是否相同**。相同就复用，不相同就删除旧的创建新的。主要是为了提升diff【同级比较】的效率
+
+当 Vue.js 用 v-for 正在更新已渲染过的元素列表时，它默认用 “**就地复用**” 策略。如果数据项的顺序被改变，Vue将不是移动 DOM 元素来匹配数据项的顺序， 而是简单复用此处每个元素
+
+不带key时节点能够复用，省去了销毁/创建组件的开销，同时只需要修改DOM文本内容而不是移除/添加节点，这就是文档中所说的“刻意依赖默认行为以获取性能上的提升”。**这种模式只适用于渲染简单的无状态组件**
+
+带上唯一key虽然会增加开销，但是对于用户来说基本感受不到差距，而且能保证组件状态正确
+
+# 箭头函数
+
+箭头函数是普通函数的简写，可以更优雅的定义一个函数，和普通函数相比，有以下几点差异：
+
+1、函数体内的 this 对象，就是定义时所在的对象，而不是使用时所在的对象。
+
+2、不可以使用 arguments 对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+
+3、不可以使用 yield 命令，因此箭头函数不能用作 Generator 函数。
+
+4、不可以使用 new 命令，因为：
+
+- 没有自己的 this，无法调用 call，apply。
+- 没有 prototype 属性 ，而 new 命令在执行时需要将构造函数的 prototype 赋值给新的对象的 __proto__
+
+## 什么是 Immutable Data
+
+Immutable Data 就是一旦创建，就不能再被更改的数据。对 Immutable 对象的任何修改或添加删除操作都会返回一个新的 Immutable 对象。Immutable 实现的原理是 Persistent Data Structure（持久化数据结构），也就是使用旧数据创建新数据时，要保证旧数据同时可用且不变。同时为了避免 deepCopy 把所有节点都复制一遍带来的性能损耗，Immutable 使用了 Structural Sharing（结构共享），即如果对象树中一个节点发生变化，只修改这个节点和受它影响的父节点，其它节点则进行共享。
+
+
+
+
+
+# 任务队列：补充
+
+1.调用栈中按顺序执行  
+
+- ​    开始 -> 
+- ​    取第一个task queue里的任务执行(可以认为同步任务队列是第一个task queue) -> 
+- ​    取microtask全部任务依次执行 -> 
+- ​    取下一个task queue里的任务执行 -> 
+- ​    再次取出microtask全部任务执行 -> … 这样循环往复
+
+2.执行到 async 标记过的函数（设为foo），当进入该函数的时候， JavaScript 引擎会保存当前的调用栈等信息，然后执行 foo 函数，执行到await的时候
+
+**如果await后面就是promise对象则返回原Promise中的resolve**
+
+**如果碰到await 1 这样的它就会默认创建一个 Promise 对象**
+
+```javascript
+let promise_ = new Promise((resolve,reject){
+  resolve(1)
+})
+```
+
+- 然后 JavaScript 引擎会暂停当前协程的执行，将主线程的控制权转交给父协程执行，同时会将 promise_ 对象返回给父协程。父协程讲这个promise放入微任务队列
+- 随后父协程将执行结束，在结束之前，会进入微任务的检查点，然后执行微任务队列
+- 微任务队列中有resolve(1)的任务等待执行，执行到这里的时候，会触发 promise_.then 中的回调函数
+- **如果这个回调函数还有.then操作则将这个onResolve放入微任务中 然后将执行权返回父协程**
+
+该回调函数被激活以后，会将主线程的控制权交给 foo 函数的协程
+
+然后 foo 协程继续执行后续语句，执行完成之后，将控制权归还给父协程。
+
+
+
+- **Symbol.for(string)，这种方式会把创建的symbol放入一个symbol注册表，如果已经存在了该symbol就会返回相同的值，这样可在不同的页面共享一个Symbol。**
+
+# 垃圾回收机制 标记清除
+
+**这是javascript中最常用的垃圾回收方式**。当变量进入执行环境是，就标记这个变量为“进入环境”。从逻辑上讲，永远不能释放进入环境的变量所占用的内存，因为只要执行流进入相应的环境，就可能会用到他们。当变量离开环境时，则将其标记为“离开环境”。
+
+垃圾收集器在运行的时候会给存储在内存中的所有变量都加上标记。然后，它会去掉环境中的变量以及被环境中的变量引用的标记。而在此之后再被加上标记的变量将被视为准备删除的变量，原因是环境中的变量已经无法访问到这些变量了。最后。垃圾收集器完成内存清发除工作，销毁那些带标记的值，并回收他们所占用的内存空间。
+
 

@@ -77,3 +77,18 @@ web worker 是运行在后台的 JavaScript，独立于其他脚本，不会影�
 - 一. 创建 web worker 文件，worker文件是一个单独的js文件，写好逻辑后，通过postMessage()方法吧数据发送出去
 - 二. 调用页面创建worker对象，var w = new Worker("worker文件路径").然后通过实例对象调用`onmessage`事件进行监听，并获取worker文件里返回的数据
 - 三.终止web worker，当我们的web worker创建后会持续的监听它，需要中止的时候则使用实例上的方法`w.terminate()`。
+
+
+
+# **HTMLCollection与NodeList的区别**
+
+`HTMLCollection`和`NodeList`都是`DOM`的节点集合；但是它们两个能够包含的元素是不太一样的，`HTMLCollection`只可以包含`HTML`元素(`Element`)集合，`NodeList`可以包含任意的节点类型，就是说`NodeList`不仅可以包含`HTML`元素集合，也可以包含像文字节点，注释节点等类型的节点集合。
+
+# 为什么getElementsByTagName比querySelectorAll方法快
+
+
+
+因为通过`getElementsByTagName`获取到的`NodeList`是一个实时的集合，这种实时的集合，是不需要在一开始的时候就获取到所有的信息的；然而通过`querySelectorAll`方法获取到的的`NodeList`集合是一个静态的集合，这个集合相当于一个快照，就是在这个方法运行的那个时间，它所要获取的集合元素的一个快照，所以这个集合要保存大量的信息，速度自然会慢下来。
+
+为了加深理解，我们可以这样理解：**使用getElementsByTagName方法我们得到的结果就像是一个对象的索引，而通过querySelectorAll方法我们得到的是一个对象的克隆；所以当这个对象数据量非常大的时候，显然克隆这个对象所需要花费的时间是很长的。**
+

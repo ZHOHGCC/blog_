@@ -101,3 +101,172 @@ Hook 必须写在函数的最外层，每一次 useState 都会改变其下标 (
 
 
 
+##  context
+
+creactContext(defaultValue?)  创造context  
+
+会影响组件独立性,不能大规模使用
+
+```react
+import React, { createContext } from 'react'
+const AgeContext = createContext(20)
+
+
+//-------------
+function Leaf () {
+    return (<div>
+        <AgeContext.Consumer>
+            {(data) => { return (<h1>{data} </h1>) }}
+        </AgeContext.Consumer>
+    </div>)
+}
+function Middle () {
+    return (<div>
+        <Leaf></Leaf>
+    </div>)
+}
+function Hooks () {
+    return (
+        <AgeContext.Provider value={10}>
+            <Middle></Middle>
+        </AgeContext.Provider>
+    )
+}
+export default Hooks
+
+```
+
+
+
+## lazy,suspense
+
+lazy 延迟加载
+
+suspense 加载完成之前所显示的 
+
+# Hooks
+
+**类组件** ：
+
+**1.难以复用状态逻辑**：
+
+缺少复用机制
+
+渲染属性和高阶组件 导致层级多
+
+**2.难以维护**：
+
+生命周期混杂 
+
+相关逻辑分布在不同生命周期中
+
+3.this**指向问题**
+
+内联函数会过度创建句柄，导致子组件过多渲染
+
+类成员函数不能保证this
+
+**Hooks优势**
+
+- 没有this的问题
+- 自定义hooks方便复用状态逻辑
+- 副作用的关注点分离
+
+规定
+
+仅仅在顶层调用Hooks函数 ，保证在不同的渲染周期中hooks函数的调用顺序不变
+
+不能再其他普通函数里调用，仅在自定义hook和函数组件里调用
+
+## useState()
+
+```react
+import React, { useState } from 'react'
+
+function Hooks () {
+    //--------------------------------------useState只是返回变量，返回的结果按照顺序返回，底层是数组    js是单线程的保证全局唯一性。
+    // 支持传入函数 可做判断(判断语句只会执行一次)
+    const [count, setCount] = useState(0)
+    return (
+        <div>
+            <button onClick={() => { setCount(count + 1) }}>1212</button>
+            {count}
+        </div>
+    )
+}
+```
+
+## useEffect
+
+```react
+ 
+useEffect(fn,可选参数) 执行的是副作用 渲染之后才执行  (您可能之前已经执行过数据获取，订阅或手动从React组件更改DOM的操作。我们将这些操作称为“副作用”（或简称为“效果”），因为它们会影响其他组件，并且在渲染过程中无法完成。)
+可选参数为
+空：每次渲染后都执行  相当于 componentDidMount 和 componentDidUpdate:
+空数组：第一次执行一次。之后就不执行  相当于 componentDidMount
+为数组：数组内的元素改变则执行
+
+fn返回一个回调函数
+  // useEffect 在执行副作用函数之前，会先调用上一次返回的函数
+  // 如果要清除副作用，要么返回一个清除副作用的函数
+ useEffect 函数有要求：要么返回清除副作用函数，要么就不返回任何内容
+```
+
+## useContext
+
+```react
+使用 const countContext = createContext()  来创建context
+使用 const count = useContext(countContext) 来获取
+```
+
+## useMemo
+
+```react
+memo针对的是一个组件是否重复执行，useMemo是针对一个函数是否重复执行
+memo和useMemo 不管用不用都不会影响业务（记住，传入 useMemo 的函数会在渲染期间执行。请不要在这个函数内部执行与渲染无关的操作，诸如副作用这类的操作属于 useEffect 的适用范畴，而不是 useMemo。）
+
+
+useMemo是在渲染期间完成的
+useMemo根据依赖是否变化来决定函数是否执行
+useMemo(fn,数组)
+ const double = useMemo(() => {
+        return count * 2
+    }, [count === 2])  执行条件和useEffect一样    如果未提供数组，则将在每个渲染上计算一个新值。
+ 当count=2或者3的时候会执行 false-true-false
+
+```
+
+useCallback
+
+```react
+//当useMemo返回的是函数 则可以使用useCallback（）来简化操作
+const xx = useCallback(()=>{
+   fn
+},[])
+```
+
+## useRef
+
+- 获得子组件或者dom的句柄
+
+- 渲染周期之间共享数据的存储  //相当于 类的属性成员
+
+  比如 在函数内创建了一个定时器，消除定时器的话，就可以使用useRef
+
+  ```react
+  const timeRef = useRef()
+  timeRef.current = setTimeout(fn,5000)
+  ```
+
+  
+
+函数组件无法获得子组件的句柄 ，因为函数组件没法实例化
+
+## 自定义Hook
+
+- 自定义 Hook 更像是一种约定，而不是一种功能。如果函数的名字以 use 开头，并且调用了其他的 Hook，则就称其为一个自定义 Hook
+- 有时候我们会想要在组件之间重用一些状态逻辑，之前要么用 render props ，要么用高阶组件，要么使用 redux
+- 自定义 Hook 可以让你在不增加组件的情况下达到同样的目的
+- **Hook 是一种复用状态逻辑的方式，它不复用 state 本身**
+- **事实上 Hook 的每次调用都有一个完全独立的 state**
+
